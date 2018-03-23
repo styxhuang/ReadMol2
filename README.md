@@ -1,7 +1,7 @@
 # ReadMol2
 Generate the polymer crosslinking network starts from a mol2 file to a gro file
 
-# version 0.0.1
+# version 0.1
 Prerequirement software packages:
 1. Gromacs 
 2. Topoltools
