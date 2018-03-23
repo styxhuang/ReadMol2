@@ -6,6 +6,7 @@ Created on Wed Mar 14 18:43:40 2018
 """
 
 import readMOL2
+import argparse
 
 ####################################################################  
 if __name__ == "__main__":
@@ -52,10 +53,11 @@ if __name__ == "__main__":
             bondsNum = int(a[1])
             print("bondsNum: ", bondsNum)
     f.close()
-#    monLen = 25
-#    crosLen = 15
-#    monR = [3,21] #reactive atom index in one monomer atom
-#    crosR = [0,14] #reactive atom index in one crosslinker atom
-#    cutoff = 20.
-#    bondsNum = 10 #Each run will generate how many bonds
+#########################################
+#   Inert for future implementation of option inuput
+#    parser = argparse.ArgumentParser()
+#    parser.add_argument("-b", help="Largest generated bonds number", type=int)
+#    args = parser.parse_args()
+#    bondTotal = args.bonds
+#########################################
     readMOL2.main(filename, outputName, monLen, crosLen, monR, crosR, cutoff, bondsNum)
