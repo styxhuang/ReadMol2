@@ -1,0 +1,8 @@
+filename =III
+outputName =OOO
+monomer length = 25
+crosslinking length = 15
+monomer reactive atom index = 3 21
+crosslinker reactive atom index = 0 14
+cutoff = 15.
+bonds generate each round = 30
