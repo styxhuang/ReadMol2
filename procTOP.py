@@ -25,8 +25,11 @@ dictAngle = { #TODO: keep update angle coefficient
         'C-N-H': '1, 109.920, 394.1328'
         }
 
-dictDihedral = {
-        
+dictDihedral = { #Has little different on the 3 column, some combination is 2 and 3'
+        'C-C-O-C': '1, 180.000, 3.766, 2',
+        'C-O-C-C': '1, 180.000, 4.602, 2',
+        'C-N-C-C': '1, 180.000, 2.008, 2',
+        'C-C-N-C': '1, 180.000, 2.008, 2'
         }
 
 def CheckIndex(df, keyword):
@@ -44,8 +47,10 @@ def ChkErRow(df):
     
     for i in range(len(df)):
         spaceNum = df.iloc[i][0].count(' ')
-        if spaceNum > criNum + 7:
+        if spaceNum > criNum + 10: #If doesn't update the data right, modify this number
+#            print(df.iloc[i]['index'])
             index.append(df.iloc[i]['index'])
+#            index.append(df.iloc[i].index.values[0])
     return index
 def ProcessString(index, df, category='bond'):
     a = '1'             
@@ -62,17 +67,35 @@ def ProcessString(index, df, category='bond'):
             tmp1 = ''.join(tmp1)
             if tmp1 in dictAngle:
                 coeff = dictAngle[tmp1].split(',')
-            str1 = "{:>6}{:>6}{:>6}{:>4}{:>12}{:>12}{:>6}{:>7}{:>7}{:>6}".format(tmp[0],tmp[1],tmp[2], coeff[0], coeff[1], coeff[2], tmp[3], tmp[-3], tmp[-2],tmp[-1])
+            str1 = "{:>6}{:>6}{:>6}{:>4}{:>12}{:>12}{:>6}{:>7}{:>7}{:>6}".format(tmp[0],tmp[1],tmp[2], coeff[0], coeff[1], coeff[2], 
+                    tmp[3], tmp[-3], tmp[-2],tmp[-1])
             print(str1)
             df.iloc[index[i]] = str1
+        elif category == 'dihedral':
+            tmp2 = tmp[-4:]
+            tmp2 = ''.join(tmp2)
+            if tmp2 in dictDihedral:
+                coeff = dictDihedral[tmp2].split(',')
+                str2 = "{:>6}{:>6}{:>6}{:>6}{:>4}{:>12}{:>12}{:>10}{:>3}{:>4}{:>8}{:>7}{:>7}{:>6}".format(tmp[0],tmp[1],tmp[2], tmp[3], coeff[0], coeff[1], coeff[2], coeff[3],
+                    tmp[-6], tmp[-5], tmp[-4], tmp[-3], tmp[-2],tmp[-1])
+                print(str2)
+                df.iloc[index[i]] = str2
+#                df = df.drop([index[i]])
+            else:
+                print(tmp2)
+#                print(tmp)
+                df = df.drop([index[i]])
+#            print(tmp)
         else:
             print("Unknow data type")
 
 def UpdateRow(index, df, category='bond'): #For now only bond section needs to be updated, or the coefficient is for bond
     if category == 'bond':
         ProcessString(index, df, 'bond')
-    if category == 'angle':
+    elif category == 'angle':
         ProcessString(index, df, 'angle')
+    elif category == 'dihedral':
+        ProcessString(index, df, 'dihedral')
     return df
 
 def DropRows(index, df): #For the empty dihedral, for now I just delete them
@@ -86,7 +109,7 @@ def BondProc(TOP):
     
     bondsTOP = TOP.iloc[bondStartIdx[0]+2: bondEndIdx[0]].reset_index()
     bondIdx = ChkErRow(bondsTOP)
-    
+    print(bondIdx)
     df = UpdateRow(bondIdx, TOP)
     
     return df
@@ -102,19 +125,22 @@ def AngleProc(TOP):
 
 def DihedralProc(df):
     dihIdx = CheckIndex(df, 'dihedral')
-    index = list(range(dihIdx[0], dihIdx[1]))
-    finalDF = DropRows(index, df)
+    index = list(range(dihIdx[0]+2, dihIdx[1]))
+    df = UpdateRow(index, df, 'dihedral')
+    dihTOP = df.iloc[dihIdx[0]+2:dihIdx[1]].reset_index()
+    idx = ChkErRow(dihTOP)
+    finalDF = DropRows(idx, df)
+    return finalDF
+
+def DelEmptyRow(df):
+    idx = ChkErRow(df)
+    finalDF = DropRows(idx, df)
     return finalDF
 
 def ConstraintsProc(df):
     constrainStartIdx = CheckIndex(df, 'constraints')
     constrainEndIdx = CheckIndex(df, 'pairs')
-    print('tst-1:', constrainStartIdx)
-    print('tst-2:', constrainEndIdx)
-    print('tst-3:', df.iloc[constrainStartIdx])
-    print('tst-4:', df.iloc[constrainEndIdx])
     for i in range(constrainStartIdx[0], constrainEndIdx[0]):
-        print('tst-5:', df.iloc[i])
         df = df.drop([i])
     return df    
     
@@ -133,6 +159,7 @@ TOP = pd.read_csv(topName, sep="\n", header=None)
 a = TOP
 BondProc = BondProc(TOP)
 angleProc = AngleProc(BondProc)
-DihedralProc = DihedralProc(angleProc)
-finalProc = ConstraintsProc(DihedralProc)
+dihedralProc = DihedralProc(angleProc)
+#delEmptyRow = DelEmptyRow(dihedralProc)
+finalProc = ConstraintsProc(dihedralProc)
 ExportTOP('topol.top-bk', finalProc)
