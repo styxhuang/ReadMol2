@@ -9,7 +9,6 @@ import pandas as pd
 import AtomClass as Atom
 import BondClass as Bond
 import readMOL2 as MOL2
-import os
 def CheckIndex(df, keyword):
     index = df.index[df[0].str.contains(keyword) == True].tolist()
     return index
@@ -38,7 +37,7 @@ def InitData(GRO, TOP):
     atomEndIdx = CheckIndex(TOP, '; total molecule charge')
     
     bondStartIdx = CheckIndex(TOP, 'bonds')
-    bondEndIdx = CheckIndex(TOP, 'constraints')
+    bondEndIdx = CheckIndex(TOP, 'pairs') #Since I have delete the constraints part, need to modify here
     
     atomsTop = TOP.iloc[atomStartIdx[0]+2:atomEndIdx[0]]
     atomsGro = GRO.iloc[2:].iloc[:-1]
@@ -56,7 +55,11 @@ def AtomInfoInput(groData, topData):
     for i in range(len(groData)):
         oriGRO = groData.iloc[i].str.split().tolist()[0] #from pandas datafrom to list
         oriTOP = topData.iloc[i].str.split().tolist()[0]
-        
+        if len(oriGRO) == 8:
+#            print('tst-1: ', oriGRO[1])
+            tmp1 = [oriGRO[1][0], oriGRO[1][1:]]
+            oriGRO[1]=tmp1[0]
+            oriGRO.insert(2, tmp1[1])
         #From gro file input
         atom = Atom.AtomsInfo()
         atom.setIndex(oriGRO[2])
@@ -72,15 +75,16 @@ def AtomInfoInput(groData, topData):
         if atomType == 'C.ar':
             arIndex.append(atom.getIndex())
         atoms.append(atom)
+    
+#    tmp = atoms[0].outputData()
+#    print('tst-1: ', tmp)
+#    for i in range(len(atoms)):
+#        print('index: ', i, '\ttst-1: ', atoms[i].outputData())
 
-    for i in range(len(atoms)):
-        atoms[i].outputData()
-        
     return atoms, arIndex
 
 def BondInfoInput(topData, arIndex):
     bonds=[]
-    print("tst-", arIndex)
     for i in range(len(topData)):
         oriTOP = topData.iloc[i].str.split().tolist()[0]
         bond = Bond.BondsInfo()
@@ -103,7 +107,7 @@ def ExportMol2(TOP, atomsNum, bondsNum, atoms, bondList):
     MOL2.ExportMOL2(name, outputName, content, atomList, bondList)
     
 ###############################################################################
-groName = "min.gro"
+groName = "nvt.gro"
 topName = "topol.top"
 
 GRO = pd.read_csv(groName, sep="\n", header=None)
