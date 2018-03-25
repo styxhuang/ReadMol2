@@ -80,12 +80,6 @@ def ProcessString(index, df, category='bond'):
                     tmp[-6], tmp[-5], tmp[-4], tmp[-3], tmp[-2],tmp[-1])
                 print(str2)
                 df.iloc[index[i]] = str2
-#                df = df.drop([index[i]])
-            else:
-                print(tmp2)
-#                print(tmp)
-                df = df.drop([index[i]])
-#            print(tmp)
         else:
             print("Unknow data type")
 
@@ -128,11 +122,12 @@ def DihedralProc(df):
     index = list(range(dihIdx[0]+2, dihIdx[1]))
     df = UpdateRow(index, df, 'dihedral')
     dihTOP = df.iloc[dihIdx[0]+2:dihIdx[1]].reset_index()
+    
     idx = ChkErRow(dihTOP)
     finalDF = DropRows(idx, df)
     return finalDF
 
-def DelEmptyRow(df):
+def DelEmptyRow(df): #Doesn't work right, need to check again
     idx = ChkErRow(df)
     finalDF = DropRows(idx, df)
     return finalDF
