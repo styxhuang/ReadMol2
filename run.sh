@@ -48,7 +48,7 @@ python3 Main.py
 
 obabel -i mol2 -o mol2 -fi $BOND.mol2 -O $INI.mol2 -h
 echo "" >> $INI.mol2 #add a blank line at the end of the file
-$SOFT/topolbuild1_3/src/topolbuild -dir $DATA/gromacs/ -ff oplsaa -n $INI
+$SOFT/topolbuild1_3/src/topolbuild -dir $DATA/../ -ff gaff -n $INI
 rm *py
 
 mkdir gmx
