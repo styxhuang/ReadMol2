@@ -1,0 +1,6 @@
+There are two really big limitations for this process
+  -1. Topolbuild can only handle a small system like system includes hundreds of atoms. When the system becomes really big, like thousands atoms, the charge calculation met some problems.
+  -2. The topology file that topolbuild give it to us has some really big problem when the system hit 20k atoms.
+  
+These two limitations make me think another approach to build the system.
+
